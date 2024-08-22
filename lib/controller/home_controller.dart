@@ -1,9 +1,11 @@
 import 'dart:io';
 
+import 'package:device_info_plus/device_info_plus.dart';
+
+
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:external_path/external_path.dart';
-import 'package:image_to_pdf/view/screen/selected_image.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:image/image.dart' as img;
 import 'package:media_scanner/media_scanner.dart';
@@ -76,31 +78,44 @@ class HomeController extends GetxController {
   }
 
   Future<PermissionStatus> storagePermissionStatus() async {
-    // Check the status of the storage permission
+
     PermissionStatus storagePermissionStatus = await Permission.storage.status;
 
-    // If the permission is not granted, request it
+
     if (!storagePermissionStatus.isGranted) {
       await Permission.storage.request();
     }
 
-    // For Android 11 and above, also request manage external storage permission
     if (await Permission.manageExternalStorage.isDenied) {
       await Permission.manageExternalStorage.request();
     }
 
-    // Check the status of the permissions again
     storagePermissionStatus = await Permission.storage.status;
     PermissionStatus manageExternalStorageStatus =
         await Permission.manageExternalStorage.status;
 
-    // Return the most restrictive status (whichever is not granted)
-    if (storagePermissionStatus.isGranted &&
-        manageExternalStorageStatus.isGranted) {
-      return PermissionStatus.granted;
-    } else {
-      return PermissionStatus.denied;
+    if (Platform.isAndroid) {
+      final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+      final AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+
+      if (androidInfo.version.sdkInt >= 30) { // Android 11 (API level 30) or above
+        if (storagePermissionStatus.isGranted &&
+            manageExternalStorageStatus.isGranted) {
+          return PermissionStatus.granted;
+        } else {
+          return PermissionStatus.denied;
+        }
+      } else {
+        if (storagePermissionStatus.isGranted) {
+          return PermissionStatus.granted;
+        } else {
+          return PermissionStatus.denied;
+        }
+      }
     }
+
+    return PermissionStatus.denied;
+
   }
 
   void pickGalleryImage() async {
@@ -116,7 +131,6 @@ class HomeController extends GetxController {
       final List<XFile> images = await picker.pickMultiImage();
 
       if (images.isNotEmpty) {
-        imagePaths.clear();
         imagePaths.addAll(images);
 
         print(imagePaths.length);

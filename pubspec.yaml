@@ -53,6 +53,7 @@ dev_dependencies:
   pdf: ^3.11.1
   external_path: ^1.0.3
   media_scanner: ^2.1.0
+  device_info_plus: ^10.1.2
 
   
 # For information on the generic Dart part of this file, see the

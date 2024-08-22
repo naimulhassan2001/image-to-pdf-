@@ -13,6 +13,7 @@ class Home extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder<HomeController>(
         builder: (controller) => Scaffold(
+          extendBody: true,
               appBar: AppBar(
                 title: const Text("Images To Pdf"),
                 centerTitle: true,
@@ -20,7 +21,7 @@ class Home extends StatelessWidget {
                 foregroundColor: Colors.white,
               ),
               body: Center(
-                child: SingleChildScrollView(
+                child: Padding(
                   padding: const EdgeInsets.all(20),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -42,68 +43,61 @@ class Home extends StatelessWidget {
                       const SizedBox(
                         height: 10,
                       ),
-                      GridView.builder(
-                        shrinkWrap: true,
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                        ),
-                        itemCount:
-                            HomeController.instance.imagePaths.length + 1,
-                        itemBuilder: (BuildContext context, int index) {
-                          if (controller.imagePaths.length > index) {
-                            return Card(
-                              child: Image(
-                                image: FileImage(
-                                  File(HomeController
-                                      .instance.imagePaths[index].path),
+                      Expanded(
+                        child: GridView.builder(
+                          physics: const BouncingScrollPhysics(),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                          ),
+                          itemCount:
+                              HomeController.instance.imagePaths.length + 1,
+                          itemBuilder: (BuildContext context, int index) {
+                            if (controller.imagePaths.length > index) {
+                              return Card(
+                                child: Image(
+                                  image: FileImage(
+                                    File(HomeController
+                                        .instance.imagePaths[index].path),
+                                  ),
+                                  fit: BoxFit.contain,
                                 ),
-                                fit: BoxFit.contain,
-                              ),
-                            );
-                          } else {
-                            return Card(
-                              child: IconButton(
-                                  onPressed: controller.pickGalleryImage,
-                                  icon: const Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Icon(Icons.add),
-                                      Text("Gallery Images"),
-                                    ],
-                                  )),
-                            );
-                          }
-                        },
+                              );
+                            } else {
+                              return Card(
+                                child: IconButton(
+                                    onPressed: controller.pickGalleryImage,
+                                    icon: const Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Icon(Icons.add),
+                                        Text("Gallery Images"),
+                                      ],
+                                    )),
+                              );
+                            }
+                          },
+                        ),
                       ),
-                      // controller.imagePaths.isEmpty
-                      //     ? MaterialButton(
-                      //         color: Colors.teal,
-                      //         textColor: Colors.white,
-                      //         padding: const EdgeInsets.symmetric(
-                      //             horizontal: 30, vertical: 20),
-                      //         onPressed: controller.pickGalleryImage,
-                      //         child: const Text("Gallery Images"),
-                      //       )
-                      //     : const SizedBox(),
+
                       const SizedBox(
-                        height: 10,
+                        height: 20,
                       ),
                     ],
                   ),
                 ),
               ),
               bottomNavigationBar: Padding(
-                padding: EdgeInsets.all(20),
+                padding: const EdgeInsets.all(20),
                 child: MaterialButton(
                   color: Colors.teal,
                   textColor: Colors.white,
                   padding:
                       const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
                   onPressed: controller.convertImage,
-                  child: const Text("Create Pdf"),
+                  child: const Text("Download Pdf"),
                 ),
               ),
             ));
