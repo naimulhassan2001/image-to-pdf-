@@ -20,7 +20,6 @@ class HomeController extends GetxController {
   static HomeController get instance => Get.put(HomeController());
 
   void convertImage() async {
-
     isExporting = true;
     isProgress = true;
     update();
@@ -68,12 +67,12 @@ class HomeController extends GetxController {
 
     imagePaths.clear();
     progressValue = 0;
-    isProgress = false ;
+    isProgress = false;
     isExporting = false;
     convertedImage = 0;
     _isPickingImage = false;
-    update() ;
-    Get.snackbar("pdf Download", "pdf download successfully") ;
+    update();
+    Get.snackbar("pdf Download", "pdf download successfully");
   }
 
   Future<PermissionStatus> storagePermissionStatus() async {
