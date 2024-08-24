@@ -80,46 +80,53 @@ class HomeController extends GetxController {
     final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     final AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
 
-    PermissionStatus storagePermissionStatus = await Permission.storage.status;
+    PermissionStatus storagePermissionStatus = PermissionStatus.denied;
+    PermissionStatus manageExternalStorageStatus = PermissionStatus.denied;
 
     if (androidInfo.version.sdkInt >= 30) {
-      await Permission.manageExternalStorage.request();
-    }
+      if (androidInfo.version.sdkInt >= 33) {
+        // For SDK 33+ (Android 13+), check for media access permissions
+        storagePermissionStatus = await Permission.mediaLibrary.status;
 
-    print(androidInfo.version.sdkInt);
-
-    if (!storagePermissionStatus.isGranted) {
-      await Permission.storage.request();
-    }
-
-    if (await Permission.manageExternalStorage.isDenied) {
-      await Permission.manageExternalStorage.request();
-    }
-
-    storagePermissionStatus = await Permission.storage.status;
-    PermissionStatus manageExternalStorageStatus =
-        await Permission.manageExternalStorage.status;
-
-    if (Platform.isAndroid) {
-      if (androidInfo.version.sdkInt >= 30) {
-        // Android 11 (API level 30) or above
-        if (storagePermissionStatus.isGranted &&
-            manageExternalStorageStatus.isGranted) {
-          return PermissionStatus.granted;
-        } else {
-          return PermissionStatus.denied;
+        if (!storagePermissionStatus.isGranted) {
+          storagePermissionStatus = await Permission.mediaLibrary.request();
         }
       } else {
-        if (storagePermissionStatus.isGranted) {
-          return PermissionStatus.granted;
-        } else {
-          return PermissionStatus.denied;
+        // For SDK 30 to 32 (Android 11 to 12L), check for MANAGE_EXTERNAL_STORAGE
+        manageExternalStorageStatus = await Permission.manageExternalStorage.status;
+
+        if (!manageExternalStorageStatus.isGranted) {
+          manageExternalStorageStatus = await Permission.manageExternalStorage.request();
         }
+      }
+    } else {
+      // For SDK < 30, use the standard storage permission
+      storagePermissionStatus = await Permission.storage.status;
+
+      if (!storagePermissionStatus.isGranted) {
+        storagePermissionStatus = await Permission.storage.request();
+      }
+    }
+
+    if (Platform.isAndroid) {
+      if (androidInfo.version.sdkInt >= 33) {
+        return storagePermissionStatus.isGranted
+            ? PermissionStatus.granted
+            : PermissionStatus.denied;
+      } else if (androidInfo.version.sdkInt >= 30) {
+        return manageExternalStorageStatus.isGranted
+            ? PermissionStatus.granted
+            : PermissionStatus.denied;
+      } else {
+        return storagePermissionStatus.isGranted
+            ? PermissionStatus.granted
+            : PermissionStatus.denied;
       }
     }
 
     return PermissionStatus.denied;
   }
+
 
   void pickGalleryImage() async {
     if (_isPickingImage) return;
