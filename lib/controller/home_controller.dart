@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
 
-
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:external_path/external_path.dart';
@@ -78,7 +77,6 @@ class HomeController extends GetxController {
   }
 
   Future<PermissionStatus> storagePermissionStatus() async {
-
     final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     final AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
 
@@ -88,8 +86,7 @@ class HomeController extends GetxController {
       await Permission.manageExternalStorage.request();
     }
 
-
-    print(androidInfo.version.sdkInt) ;
+    print(androidInfo.version.sdkInt);
 
     if (!storagePermissionStatus.isGranted) {
       await Permission.storage.request();
@@ -104,9 +101,8 @@ class HomeController extends GetxController {
         await Permission.manageExternalStorage.status;
 
     if (Platform.isAndroid) {
-
-
-      if (androidInfo.version.sdkInt >= 30) { // Android 11 (API level 30) or above
+      if (androidInfo.version.sdkInt >= 30) {
+        // Android 11 (API level 30) or above
         if (storagePermissionStatus.isGranted &&
             manageExternalStorageStatus.isGranted) {
           return PermissionStatus.granted;
@@ -123,7 +119,6 @@ class HomeController extends GetxController {
     }
 
     return PermissionStatus.denied;
-
   }
 
   void pickGalleryImage() async {
