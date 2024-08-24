@@ -79,8 +79,17 @@ class HomeController extends GetxController {
 
   Future<PermissionStatus> storagePermissionStatus() async {
 
+    final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    final AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+
     PermissionStatus storagePermissionStatus = await Permission.storage.status;
 
+    if (androidInfo.version.sdkInt >= 30) {
+      await Permission.manageExternalStorage.request();
+    }
+
+
+    print(androidInfo.version.sdkInt) ;
 
     if (!storagePermissionStatus.isGranted) {
       await Permission.storage.request();
@@ -95,8 +104,7 @@ class HomeController extends GetxController {
         await Permission.manageExternalStorage.status;
 
     if (Platform.isAndroid) {
-      final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-      final AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+
 
       if (androidInfo.version.sdkInt >= 30) { // Android 11 (API level 30) or above
         if (storagePermissionStatus.isGranted &&

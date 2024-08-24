@@ -73,7 +73,7 @@ class Home extends StatelessWidget {
                                           CrossAxisAlignment.center,
                                       children: [
                                         Icon(Icons.add),
-                                        Text("Gallery Images"),
+                                        Text("Select Images"),
                                       ],
                                     )),
                               );
